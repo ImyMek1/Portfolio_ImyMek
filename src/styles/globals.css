@@ -262,10 +262,12 @@ html {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   overflow-x: hidden; /* prevent any fixed-element overflow from creating horizontal scroll */
+  max-width: 100vw;
 }
 
 #root {
   overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body {
@@ -275,6 +277,7 @@ body {
   font-size: 1rem;
   line-height: 1.6;
   overflow-x: hidden;
+  max-width: 100vw;
   min-height: 100svh;
 }
 
@@ -818,50 +821,104 @@ strong { color: #fff4f7; font-weight: 500; }
 @utility btn-neon {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 2rem;
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
+  justify-content: center;
+  gap: 12px;
+  padding-left: 28px;
+  padding-right: 24px;
+  height: 54px;
+  min-width: 230px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
   text-transform: uppercase;
+  white-space: nowrap;
   color: #fff4f7;
-  background: rgba(194, 42, 77, 0.12);
-  border: 1px solid rgba(224, 68, 109, 0.38);
+  background: linear-gradient(
+    135deg,
+    rgba(194, 42,  77, 0.94) 0%,
+    rgba(157, 78, 221, 0.74) 100%
+  );
+  border: 1px solid rgba(224, 68, 109, 0.48);
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 4px 22px rgba(194, 42, 77, 0.34),
+    inset 0 1px 0 rgba(255, 244, 247, 0.16);
   transition:
-    background    0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color  0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow    0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow   0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Glass shine */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(255, 244, 247, 0.12) 0%, transparent 52%);
+    pointer-events: none;
+  }
 
   &:hover {
-    background:    rgba(194, 42, 77, 0.22);
-    border-color:  rgba(224, 68, 109, 0.65);
+    border-color: rgba(224, 68, 109, 0.72);
     box-shadow:
-      0 0 18px rgba(224, 68, 109, 0.28),
-      0 0 50px rgba(194, 42,  77, 0.14);
+      0 10px 40px rgba(194, 42, 77, 0.54),
+      0 0  64px rgba(194, 42, 77, 0.18),
+      inset 0 1px 0 rgba(255, 244, 247, 0.20);
   }
 }
 
 @utility btn-ghost {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 2rem;
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
+  justify-content: center;
+  gap: 12px;
+  padding-left: 24px;
+  padding-right: 24px;
+  height: 54px;
+  min-width: 170px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
   text-transform: uppercase;
-  color: #9f8b94;
-  background: transparent;
-  border: 1px solid var(--border-soft);
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--color-text) 80%, var(--color-text-muted));
+  background: color-mix(in srgb, var(--color-surface-1) 58%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-rose) 32%, var(--border-soft));
+  box-shadow:
+    0 2px 16px rgba(5, 2, 7, 0.38),
+    inset 0 1px 0 rgba(255, 244, 247, 0.04);
   transition:
-    color         0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color  0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    background    0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color  0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow    0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    color         0.35s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    color:         #fff4f7;
-    border-color:  rgba(224, 68, 109, 0.38);
+    background:   color-mix(in srgb, var(--color-surface-1) 80%, transparent);
+    border-color: color-mix(in srgb, var(--color-rose) 58%, var(--border-soft));
+    color:        var(--color-text);
+    box-shadow:
+      0 8px 30px rgba(194, 42, 77, 0.20),
+      inset 0 1px 0 rgba(255, 244, 247, 0.07);
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   XV-A. BUTTON MOBILE SAFETY
+═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  /* Remove min-width constraints inside Tech and Creative cards */
+  #tech .tech-featured-buttons .btn-neon,
+  #tech .tech-featured-buttons .btn-ghost,
+  #tech .tech-featured-buttons a,
+  #tech .tech-featured-buttons button {
+    min-width: 0 !important;
+    height: auto !important;
   }
 }
 

@@ -468,7 +468,7 @@ function FeaturedCreativeCard() {
       </div>
 
       {/* Content */}
-      <div style={{
+      <div className="creative-featured-content" style={{
         position:  'relative', zIndex: 2,
         padding:   'clamp(20px, 2.8vw, 32px)',
         maxWidth:  '52%',
@@ -610,7 +610,7 @@ function GalleryCard({ item, index }) {
     >
       <GalleryVisual type={item.type} />
 
-      <div style={{
+      <div className="creative-card-content" style={{
         position:  'relative', zIndex: 2,
         padding:   '15px 16px',
         maxWidth:  '60%',
@@ -1081,6 +1081,20 @@ export default function Creative() {
 
       {/* ── Responsive overrides ─────────────────────────────── */}
       <style>{`
+        /* Hard overflow guard on the section itself */
+        #creative {
+          overflow-x: hidden;
+          max-width: 100vw;
+        }
+        #creative * {
+          box-sizing: border-box;
+        }
+        .creative-grid,
+        .creative-cards-grid,
+        .creative-bottom-grid {
+          min-width: 0;
+        }
+
         @media (max-width: 1100px) {
           .creative-grid {
             grid-template-columns: 1fr !important;
@@ -1098,19 +1112,85 @@ export default function Creative() {
             grid-template-columns: repeat(2, 1fr) !important;
           }
         }
+
         @media (max-width: 768px) {
+          /* All grid containers — prevent expansion */
+          .creative-grid,
+          .creative-cards-grid,
+          .creative-bottom-grid {
+            min-width: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+          }
+
           .creative-cards-grid {
             grid-template-columns: 1fr !important;
+            gap: 12px !important;
           }
+
           .creative-bottom-grid {
             grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+
+          /* Filter — wrap cleanly, no scrollbar */
+          .creative-filters {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+            overflow: visible !important;
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+          .creative-filters > span {
+            width: 100% !important;
+            margin-bottom: 0 !important;
+          }
+          .creative-filters button {
+            flex: 0 1 auto !important;
+            min-width: 0 !important;
+            white-space: nowrap !important;
+            padding: 7px 12px !important;
+            font-size: 0.5rem !important;
+          }
+
+          /* Featured card content — full width */
+          .creative-featured-content {
+            max-width: 100% !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          /* Gallery card content — full width */
+          .creative-card-content {
+            max-width: 100% !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          /* All cards — hard overflow containment */
+          .creative-featured,
+          .creative-gallery-card {
+            overflow: hidden !important;
+            min-width: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+
+          /* Panels — full width */
+          .creative-tools,
+          .creative-process {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
           }
         }
+
         @media (max-width: 480px) {
-          .creative-filters {
-            overflow-x: auto;
-            flex-wrap: nowrap !important;
-            padding-bottom: 4px;
+          .creative-filters button {
+            padding: 6px 10px !important;
+            font-size: 0.48rem !important;
           }
         }
       `}</style>

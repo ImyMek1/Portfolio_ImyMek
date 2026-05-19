@@ -63,7 +63,7 @@ export default function Navbar() {
         left:      0,
         right:     0,
         margin:    '0 auto',
-        width:     'min(calc(100vw - 48px), 1180px)',
+        width:     'min(calc(100vw - 32px), 1180px)',
         zIndex:    50,
       }}
       initial={reduced ? false : { y: -28, opacity: 0 }}

@@ -147,6 +147,7 @@ export default function HeroPortrait({ portraitSrc, parallaxX, parallaxY }) {
 
   return (
     <div
+      className="hero-portrait-shell"
       style={{
         position:       'relative',
         display:        'flex',

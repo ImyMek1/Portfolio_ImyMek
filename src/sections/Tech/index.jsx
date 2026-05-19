@@ -572,7 +572,7 @@ function FeaturedCard({ project }) {
     >
       <LaravelVisual />
 
-      <div style={{
+      <div className="tech-featured-content" style={{
         position: 'relative', zIndex: 2,
         padding:   'clamp(18px, 2.5vw, 28px)',
         maxWidth:  '54%',
@@ -641,7 +641,7 @@ function FeaturedCard({ project }) {
         </div>
 
         {/* Actions */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div className="tech-featured-buttons" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <motion.a
             href={project.links.live}
             target="_blank" rel="noopener noreferrer"
@@ -704,7 +704,7 @@ function HighlightCard({ project }) {
     >
       <TravelVisual />
 
-      <div style={{
+      <div className="tech-featured-content" style={{
         position: 'relative', zIndex: 2,
         padding:   'clamp(16px, 2.2vw, 26px)',
         maxWidth:  '53%',
@@ -796,7 +796,7 @@ function HighlightCard({ project }) {
         </div>
 
         {/* Actions */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div className="tech-featured-buttons" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <motion.a
             href={project.links.live}
             target="_blank" rel="noopener noreferrer"
@@ -873,7 +873,7 @@ function ProjectCard({ project, index }) {
     >
       <SmallVisual type={project.visual} />
 
-      <div style={{
+      <div className="tech-card-content" style={{
         position: 'relative', zIndex: 2,
         padding:  '15px 16px',
         maxWidth: '58%',
@@ -1417,6 +1417,20 @@ export default function Tech() {
 
       {/* ── Responsive overrides ─────────────────────────────── */}
       <style>{`
+        /* Hard overflow guard on the section itself */
+        #tech {
+          overflow-x: hidden;
+          max-width: 100vw;
+        }
+        #tech * {
+          box-sizing: border-box;
+        }
+        .tech-grid,
+        .tech-cards-grid,
+        .tech-bottom-grid {
+          min-width: 0;
+        }
+
         @media (max-width: 1100px) {
           .tech-grid {
             grid-template-columns: 1fr !important;
@@ -1434,19 +1448,95 @@ export default function Tech() {
             grid-template-columns: repeat(2, 1fr) !important;
           }
         }
+
         @media (max-width: 768px) {
+          /* All grid containers — prevent expansion */
+          .tech-grid,
+          .tech-cards-grid,
+          .tech-bottom-grid {
+            min-width: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+          }
+
           .tech-cards-grid {
             grid-template-columns: 1fr !important;
+            gap: 12px !important;
           }
+
           .tech-bottom-grid {
             grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+
+          /* Filter — wrap cleanly, no scrollbar */
+          .tech-filters {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+            overflow: visible !important;
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+          .tech-filters > span {
+            width: 100% !important;
+            margin-bottom: 0 !important;
+          }
+          .tech-filters button {
+            flex: 0 1 auto !important;
+            min-width: 0 !important;
+            white-space: nowrap !important;
+            padding: 7px 12px !important;
+            font-size: 0.5rem !important;
+          }
+
+          /* Featured/highlight card content — full width */
+          .tech-featured-content {
+            max-width: 100% !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          /* Buttons — stack vertically, full width, override btn-neon min-width */
+          .tech-featured-buttons {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+            width: 100% !important;
+          }
+          .tech-featured-buttons > * {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            height: auto !important;
+            padding: 10px 16px !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
+          }
+
+          /* Small project card content — full width */
+          .tech-card-content {
+            max-width: 100% !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          /* All cards — hard overflow containment */
+          .tech-featured,
+          .tech-highlight,
+          .tech-card {
+            overflow: hidden !important;
+            min-width: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
           }
         }
+
         @media (max-width: 480px) {
-          .tech-filters {
-            overflow-x: auto;
-            flex-wrap: nowrap !important;
-            padding-bottom: 4px;
+          .tech-filters button {
+            padding: 6px 10px !important;
+            font-size: 0.48rem !important;
           }
         }
       `}</style>

@@ -516,34 +516,36 @@ export default function Hero() {
             </div>
 
             {/* CTA buttons */}
-            <div className="gsap-cta" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div className="gsap-cta hero-cta-group" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
               <motion.button
                 className="btn-neon"
-                style={{
-                  borderRadius: 9999, cursor: 'pointer', gap: '0.5rem',
-                  boxShadow: '0 4px 18px rgba(194,42,77,0.22)',
-                }}
+                style={{ borderRadius: 9999, cursor: 'pointer' }}
                 onClick={() => scrollTo('#tech')}
-                whileHover={{ scale: 1.05, y: -3, boxShadow: '0 14px 38px rgba(194,42,77,0.50), 0 4px 14px rgba(194,42,77,0.28)' }}
-                whileTap={{ scale: 0.97 }}
+                initial="rest"
+                whileHover="hover"
+                whileTap={{ scale: 0.98 }}
+                variants={{ rest: { y: 0 }, hover: { y: -2 } }}
                 transition={{ duration: 0.22, ease: ease.expo }}
               >
                 Explore My Work
-                <ArrowRight size={12} strokeWidth={1.5} />
+                <motion.span
+                  style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                  variants={{ rest: { x: 0 }, hover: { x: 4 } }}
+                  transition={{ duration: 0.20, ease: ease.expo }}
+                >
+                  <ArrowRight size={18} strokeWidth={2} />
+                </motion.span>
               </motion.button>
               <motion.button
                 className="btn-ghost"
-                style={{
-                  borderRadius: 9999, cursor: 'pointer', gap: '0.5rem',
-                  background: 'color-mix(in srgb, var(--color-crimson) 5%, transparent)',
-                }}
+                style={{ borderRadius: 9999, cursor: 'pointer' }}
                 onClick={() => scrollTo('#contact')}
-                whileHover={{ scale: 1.04, y: -2, boxShadow: '0 10px 30px rgba(194,42,77,0.22)', background: 'color-mix(in srgb, var(--color-crimson) 10%, transparent)' }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.22, ease: ease.expo }}
               >
+                <Mail size={16} strokeWidth={1.5} style={{ flexShrink: 0 }} />
                 Contact Me
-                <Mail size={12} strokeWidth={1.5} />
               </motion.button>
             </div>
 
@@ -583,6 +585,7 @@ export default function Hero() {
 
         {/* ── Bottom: 3 feature cards ───────────────────────────── */}
         <div
+          className="hero-bottom-cards"
           style={{
             display:             'grid',
             gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
@@ -607,6 +610,12 @@ export default function Hero() {
           .hero-grid > *:nth-child(3) {
             grid-column: 1 / -1;
           }
+          .hero-bottom-cards {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          }
+          .hero-portrait-shell {
+            padding: 20px 32px !important;
+          }
         }
         @media (max-width: 768px) {
           .hero-grid {
@@ -617,6 +626,27 @@ export default function Hero() {
             grid-column: auto;
           }
           .hero-float-card { display: none !important; }
+          .hero-cta-group {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .hero-cta-group button {
+            width: 100% !important;
+            max-width: 320px !important;
+            min-width: 0 !important;
+          }
+          .hero-bottom-cards {
+            grid-template-columns: 1fr !important;
+          }
+          .hero-portrait-shell {
+            padding: 16px 16px !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .gsap-title-1, .gsap-title-2 {
+            font-size: clamp(2.2rem, 8vw, 3.5rem) !important;
+            word-break: break-word;
+          }
         }
       `}</style>
     </section>
