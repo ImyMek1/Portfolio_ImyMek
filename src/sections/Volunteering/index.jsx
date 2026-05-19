@@ -87,7 +87,7 @@ const INITIATIVES = [
     role: 'Content Creation Team Lead',
     date: 'Nov 2022',
     year: '2022',
-    desc: 'Led content creation activities during club initiatives and team events.',
+    desc: 'Managed and coordinated content creation for club initiatives, events, and team activities.',
     category: 'Content',
     symbol: '▣',
     accent: 'rgba(247,180,50,0.85)',
