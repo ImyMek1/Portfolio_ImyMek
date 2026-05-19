@@ -6,8 +6,9 @@ import { ease } from '@lib/animations'
 import { SpotlightGlow } from '@components/effects'
 import { profile } from '@data/profile'
 import { useScrollTo } from '@hooks/useLenis'
-import HeroPortrait from './HeroPortrait'
-import HeroWidgets  from './HeroWidgets'
+import HeroPortrait   from './HeroPortrait'
+import HeroWidgets    from './HeroWidgets'
+import HeroNameTitle  from './HeroNameTitle'
 
 /* ── Portrait asset ─────────────────────────────────────────── */
 const portraitModules = import.meta.glob(
@@ -357,14 +358,35 @@ export default function Hero() {
   useLayoutEffect(() => {
     if (reduced) return
     const ctx = gsap.context(() => {
-      gsap.set(['.hero-portrait', '.hero-float-card', '.gsap-widget', '.hero-bottom-card'], { autoAlpha: 0 })
+      gsap.set(
+        ['.hero-portrait', '.hero-float-card', '.gsap-widget', '.hero-bottom-card',
+         '.hero-letter-first', '.hero-letter-last'],
+        { autoAlpha: 0 }
+      )
 
       const tl = gsap.timeline({ delay: 0.15, defaults: { ease: 'expo.out' } })
 
-      tl.from('.gsap-label',    { y: 12, opacity: 0, duration: 0.65 }, 0.00)
-        .from('.gsap-title-1',  { y: 40, opacity: 0, duration: 0.85 }, 0.12)
-        .from('.gsap-title-2',  { y: 40, opacity: 0, duration: 0.85 }, 0.24)
-        .from('.gsap-subtitle', { y: 16, opacity: 0, duration: 0.70 }, 0.38)
+      tl.from('.gsap-label', { y: 12, opacity: 0, duration: 0.65 }, 0.00)
+
+        /* IMANE — each letter rises from below with blur dissolve */
+        .fromTo('.hero-letter-first',
+          { autoAlpha: 0, y: 28, filter: 'blur(10px)' },
+          { autoAlpha: 1, y: 0,  filter: 'blur(0px)',
+            duration: 0.82,
+            stagger: { amount: 0.38, ease: 'power2.inOut' },
+            ease: 'expo.out' },
+          0.12)
+
+        /* MAFTAH EL KHEIR — letters stamp in with outline reveal */
+        .fromTo('.hero-letter-last',
+          { autoAlpha: 0, filter: 'blur(6px)', skewX: 3 },
+          { autoAlpha: 1, filter: 'blur(0px)', skewX: 0,
+            duration: 0.65,
+            stagger: { amount: 0.54, ease: 'power1.inOut' },
+            ease: 'expo.out' },
+          0.54)
+
+        .from('.gsap-subtitle', { y: 16, opacity: 0, duration: 0.70 }, 0.95)
         .from('.gsap-roles',    { y: 12, opacity: 0, duration: 0.60 }, 0.48)
         .from('.gsap-desc',     { y: 12, opacity: 0, duration: 0.60 }, 0.55)
         .from('.gsap-stats',    { y: 10, opacity: 0, duration: 0.55 }, 0.63)
@@ -448,36 +470,13 @@ export default function Hero() {
             </span>
 
             {/* Title */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.04em' }}>
-              <h1
-                className="gsap-title-1 font-editorial text-text"
-                style={{
-                  fontSize:      'clamp(2.8rem, 5.2vw, 5.5rem)',
-                  fontWeight:    300,
-                  lineHeight:    0.95,
-                  letterSpacing: '-0.035em',
-                  margin:        0,
-                }}
-              >
-                {profile.firstName}
-              </h1>
-              <h1
-                className="gsap-title-2 font-editorial"
-                style={{
-                  fontSize:         'clamp(2.8rem, 5.2vw, 5.5rem)',
-                  fontWeight:       300,
-                  lineHeight:       0.95,
-                  letterSpacing:    '-0.035em',
-                  fontStyle:        'italic',
-                  color:            'color-mix(in srgb, var(--color-crimson) 10%, transparent)',
-                  WebkitTextStroke: '1.2px color-mix(in srgb, var(--color-rose) 58%, var(--color-crimson))',
-                  textShadow:       '0 0 44px color-mix(in srgb, var(--color-crimson) 28%, transparent)',
-                  margin:           0,
-                }}
-              >
-                {profile.lastName}
-              </h1>
-            </div>
+            <HeroNameTitle
+              firstName={profile.firstName}
+              lastName={profile.lastName}
+              springX={springX}
+              springY={springY}
+              reduced={reduced}
+            />
 
             {/* Subtitle */}
             <p
@@ -647,6 +646,113 @@ export default function Hero() {
             font-size: clamp(2.2rem, 8vw, 3.5rem) !important;
             word-break: break-word;
           }
+        }
+
+        /* ── Name title: typography ──────────────────────────── */
+        .hero-name-first {
+          color: #fff4f7;
+          text-shadow:
+            0 0 80px rgba(194, 42, 77, 0.13),
+            0 0 32px rgba(224, 68, 109, 0.07);
+          transition: text-shadow 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hero-name-last {
+          color: color-mix(in srgb, var(--color-crimson) 10%, transparent);
+          -webkit-text-stroke: 1.2px color-mix(in srgb, var(--color-rose) 58%, var(--color-crimson));
+          text-shadow: 0 0 44px color-mix(in srgb, var(--color-crimson) 28%, transparent);
+          transition: text-shadow 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ── Hover: glow intensifies, individual letters lift ── */
+        .hero-name-group:hover .hero-name-first {
+          text-shadow:
+            0 0 64px rgba(194, 42, 77, 0.28),
+            0 0 24px rgba(194, 42, 77, 0.16),
+            0 0 8px  rgba(224, 68, 109, 0.10);
+        }
+        .hero-name-group:hover .hero-name-last {
+          text-shadow:
+            0 0 52px rgba(194, 42, 77, 0.26),
+            0 0 20px rgba(194, 42, 77, 0.13);
+        }
+        .hero-letter-first,
+        .hero-letter-last {
+          transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hero-letter-first:hover { transform: translateY(-4px); }
+        .hero-letter-last:hover  { transform: translateY(-3px); }
+
+        /* ── Shimmer beam — slow light sweep over the name ───── */
+        .hero-shimmer-mask {
+          position: absolute;
+          inset: -6px -10px;
+          pointer-events: none;
+          overflow: hidden;
+          z-index: 3;
+        }
+        .hero-shimmer-mask::before {
+          content: '';
+          position: absolute;
+          top: -10%; width: 42%; height: 120%;
+          background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 190, 215, 0.05) 25%,
+            rgba(255, 244, 247, 0.13) 50%,
+            rgba(255, 190, 215, 0.05) 75%,
+            transparent
+          );
+          mix-blend-mode: screen;
+          transform: translateX(-260%) skewX(-12deg);
+          animation: hero-shimmer-pass 8s ease-in-out 3.2s infinite;
+        }
+        .hero-shimmer-mask--b::before {
+          animation-delay: 5.2s;
+          animation-duration: 9s;
+        }
+        @keyframes hero-shimmer-pass {
+          0%   { transform: translateX(-260%) skewX(-12deg); }
+          100% { transform: translateX(500%)  skewX(-12deg); }
+        }
+
+        /* ── Decorative elements ──────────────────────────────── */
+        .hero-name-deco-top {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          margin-bottom: 0.28em;
+        }
+        .hero-name-deco-line-a {
+          width: 30px; height: 1px;
+          background: linear-gradient(to right, transparent, rgba(194, 42, 77, 0.50));
+        }
+        .hero-name-deco-line-b {
+          width: 12px; height: 1px;
+          background: rgba(194, 42, 77, 0.22);
+        }
+        .hero-name-deco-bottom {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-top: 0.2em;
+        }
+        .hero-name-deco-line-c {
+          width: 50px; height: 1px;
+          background: linear-gradient(to right, rgba(194, 42, 77, 0.30), transparent);
+        }
+
+        /* ── Reduced motion ───────────────────────────────────── */
+        @media (prefers-reduced-motion: reduce) {
+          .hero-shimmer-mask::before { animation: none !important; }
+          .hero-letter-first,
+          .hero-letter-last { transition: none !important; }
+        }
+
+        /* ── Mobile: simplify ─────────────────────────────────── */
+        @media (max-width: 768px) {
+          .hero-shimmer-mask { display: none; }
+          .hero-name-deco-top, .hero-name-deco-bottom { display: none; }
+          .hero-letter-first:hover, .hero-letter-last:hover { transform: none; }
         }
       `}</style>
     </section>
