@@ -24,7 +24,7 @@ const PROJECT_TYPES = [
   'Web Development',
   'Photography',
   'Videography',
-  'Volunteering / Community',
+  'Volunteering / Community...',
   'Collaboration',
 ]
 
