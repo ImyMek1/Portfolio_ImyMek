@@ -9,7 +9,7 @@ import { SpotlightGlow } from '@components/effects'
    DATA
 ════════════════════════════════════════════════════════════ */
 const CONTACT_INFO = [
-  { icon: Mail,   label: 'Email',    value: 'imane.maftah19@mail.com', href: 'mailto:imane.maftah19@mail.com' },
+  { icon: Mail,   label: 'Email',    value: 'imane.maftah19@gmail.com', href: 'mailto:imane.maftah19@gmail.com' },
   { icon: Phone,  label: 'Phone',    value: '06 60 46 29 26',          href: 'tel:+212660462926'              },
   { icon: MapPin, label: 'Location', value: 'Casablanca, Morocco',     href: null                             },
 ]
@@ -66,14 +66,43 @@ function CircuitDeco() {
 /* ════════════════════════════════════════════════════════════
    CONTACT FORM
 ════════════════════════════════════════════════════════════ */
+const encode = (data) =>
+  Object.keys(data)
+    .map((key) => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+    .join('&')
+
 function ContactForm() {
-  const [fields,    setFields]    = useState({ name: '', email: '', type: '', message: '' })
+  const [fields,    setFields]    = useState({ name: '', email: '', projectType: '', message: '' })
   const [focused,   setFocused]   = useState(null)
   const [submitted, setSubmitted] = useState(false)
+  const [sending,   setSending]   = useState(false)
+  const [error,     setError]     = useState(null)
 
   const handleChange = (e) => setFields(prev => ({ ...prev, [e.target.name]: e.target.value }))
-  const handleSubmit = (e) => { e.preventDefault(); setSubmitted(true) }
-  const handleReset  = ()  => { setSubmitted(false); setFields({ name: '', email: '', type: '', message: '' }) }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setSending(true)
+    setError(null)
+    try {
+      await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: encode({ 'form-name': 'contact', ...fields }),
+      })
+      setSubmitted(true)
+    } catch {
+      setError('Something went wrong. Please try again or email me directly.')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const handleReset = () => {
+    setSubmitted(false)
+    setError(null)
+    setFields({ name: '', email: '', projectType: '', message: '' })
+  }
 
   const baseInput = {
     width: '100%',
@@ -189,7 +218,7 @@ function ContactForm() {
               color: 'var(--color-text-soft)', lineHeight: 1.65,
               margin: '0 0 22px',
             }}>
-              Message ready — backend integration can be added later.
+              Your message has been sent. I'll get back to you soon.
             </p>
 
             <motion.button
@@ -216,12 +245,18 @@ function ContactForm() {
           /* ── Form state ─────────────────────────────────── */
           <motion.form
             key="form"
+            name="contact"
+            method="POST"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
             onSubmit={handleSubmit}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.32 }}
             style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
           >
+            <input type="hidden" name="form-name" value="contact" />
+            <input type="hidden" name="bot-field" />
             {/* Name + Email row */}
             <div className="form-name-email" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
@@ -252,12 +287,12 @@ function ContactForm() {
             <div>
               <label style={labelStyle}>Project Type</label>
               <select
-                name="type" required
-                value={fields.type}
+                name="projectType" required
+                value={fields.projectType}
                 onChange={handleChange}
-                onFocus={() => setFocused('type')}
+                onFocus={() => setFocused('projectType')}
                 onBlur={() => setFocused(null)}
-                style={{ ...inputStyle('type'), cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none' }}
+                style={{ ...inputStyle('projectType'), cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none' }}
               >
                 <option value="" disabled style={{ background: '#0d0610' }}>Select a type…</option>
                 {PROJECT_TYPES.map((t) => (
@@ -281,19 +316,35 @@ function ContactForm() {
               />
             </div>
 
+            {/* Error message */}
+            {error && (
+              <p style={{
+                fontFamily: 'Inter, sans-serif', fontSize: '0.65rem',
+                color: 'rgba(248,113,113,0.9)', lineHeight: 1.55,
+                padding: '10px 14px',
+                borderRadius: 9,
+                background: 'rgba(248,113,113,0.06)',
+                border: '1px solid rgba(248,113,113,0.18)',
+                margin: 0,
+              }}>
+                {error}
+              </p>
+            )}
+
             {/* Submit */}
             <motion.button
               type="submit"
-              whileHover={{
+              disabled={sending}
+              whileHover={sending ? {} : {
                 background: 'color-mix(in srgb, var(--color-crimson) 85%, #000)',
                 boxShadow: '0 6px 28px rgba(194,42,77,0.42), 0 0 0 1px rgba(194,42,77,0.28)',
               }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={sending ? {} : { scale: 0.98 }}
               transition={{ duration: 0.2, ease: ease.expo }}
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                 padding: '13px 24px',
-                background: 'var(--color-crimson)',
+                background: sending ? 'color-mix(in srgb, var(--color-crimson) 60%, transparent)' : 'var(--color-crimson)',
                 border: 'none',
                 borderRadius: 12,
                 fontFamily: 'JetBrains Mono, monospace',
@@ -301,12 +352,13 @@ function ContactForm() {
                 letterSpacing: '0.20em',
                 textTransform: 'uppercase',
                 color: '#fff',
-                cursor: 'pointer',
+                cursor: sending ? 'not-allowed' : 'pointer',
                 boxShadow: '0 4px 18px rgba(194,42,77,0.28)',
+                opacity: sending ? 0.75 : 1,
               }}
             >
               <Send size={11} strokeWidth={1.8} />
-              Send Message
+              {sending ? 'Sending…' : 'Send Message'}
             </motion.button>
           </motion.form>
         )}
