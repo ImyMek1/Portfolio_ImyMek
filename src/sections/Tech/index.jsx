@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import {
   Code2, ArrowUpRight, Layers,
   Terminal, GitBranch, Globe, ExternalLink,
+  Landmark, BookOpen, Lock,
 } from 'lucide-react'
 import { gsap } from '@lib/gsap'
 import { ease } from '@lib/animations'
@@ -30,6 +31,19 @@ const PROJECTS = [
       live: `${GH}/MiniApp_MyTask`,
       github: `${GH}/MiniApp_MyTask`,
     },
+  },
+  {
+    id: 8,
+    casestudy: true,
+    visual: 'banking',
+    title: 'DigiBank',
+    tagline: 'Full-Stack Banking Platform',
+    categories: ['Laravel', 'React'],
+    category:   'Laravel',
+    year: '2025',
+    desc: 'AI-powered banking web application built with React and Laravel, featuring authentication, role-based dashboards, KYC OCR, smart notifications, tickets, Daret, donations, transactions, and financial tracking.',
+    stack: ['React', 'Laravel', 'MySQL', 'Tailwind', 'Sanctum', 'JWT', 'OCR', 'AI'],
+    links: { github: null, live: null },
   },
   {
     id: 7,
@@ -128,12 +142,12 @@ const TECH_STACK = [
 ]
 
 const PULSE_LINES = [
-  { text: '> git clone MiniApp_MyTask',        color: 'rgba(97,218,251,0.72)',  delay: 0.0 },
-  { text: '✓ Laravel · Blade · PHP ready',     color: 'rgba(74,222,128,0.65)',  delay: 0.5 },
+  { text: '> building DigiBank · AI Banking',  color: 'rgba(251,191,36,0.70)',  delay: 0.0 },
+  { text: '✓ React · Laravel · OCR · JWT',     color: 'rgba(74,222,128,0.65)',  delay: 0.5 },
   { text: '> netlify deploy YallaTrip',        color: 'rgba(34,211,238,0.75)',  delay: 1.0 },
   { text: '✓ React · LIVE at netlify.app',     color: 'rgba(74,222,128,0.72)',  delay: 1.5 },
-  { text: '> github.com/ImyMek1 · 10 repos',   color: 'rgba(97,218,251,0.52)', delay: 2.0 },
-  { text: '✓ Laravel · React · JS · HTML',     color: 'rgba(74,222,128,0.60)',  delay: 2.5 },
+  { text: '> git clone MiniApp_MyTask',        color: 'rgba(97,218,251,0.60)',  delay: 2.0 },
+  { text: '✓ Laravel · Blade · PHP ready',     color: 'rgba(74,222,128,0.58)',  delay: 2.5 },
 ]
 
 /* ════════════════════════════════════════════════════════════
@@ -399,6 +413,341 @@ function TravelVisual() {
       {/* Bottom fade */}
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(9,2,5,0.72) 0%, transparent 40%)' }} />
     </div>
+  )
+}
+
+/* ── Banking / DigiBank visual ───────────────────────────── */
+function BankingVisual() {
+  const GOLD = 'rgba(251,191,36,'
+  const TXN = [
+    { label: 'Salary Deposit',    arrow: '▲', amount: '+2,500', ac: 'rgba(74,222,128,0.65)',  bg: 'rgba(74,222,128,0.10)' },
+    { label: 'Daret Payment',     arrow: '▼', amount: '-350',   ac: 'rgba(224,68,109,0.60)',  bg: 'rgba(224,68,109,0.09)' },
+    { label: 'Donation Transfer', arrow: '▼', amount: '-80',    ac: `${GOLD}0.60)`,           bg: `${GOLD}0.07)` },
+  ]
+  return (
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+      {/* Gold dot-grid background */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        backgroundImage: `radial-gradient(${GOLD}0.07) 1px, transparent 1px)`,
+        backgroundSize: '20px 20px',
+      }} />
+      {/* Ambient gold glow */}
+      <div style={{
+        position: 'absolute', right: '32%', top: '18%',
+        width: 110, height: 110,
+        background: `radial-gradient(circle, ${GOLD}0.08) 0%, transparent 70%)`,
+        filter: 'blur(22px)',
+      }} />
+
+      {/* Dashboard panel */}
+      <div style={{
+        position: 'absolute', right: '3%', top: '7%',
+        width: '63%', height: '86%',
+        background: 'rgba(4,1,8,0.90)',
+        borderRadius: 10, border: `1px solid ${GOLD}0.18)`,
+        overflow: 'hidden', boxShadow: `0 8px 32px rgba(5,2,7,0.7), 0 0 20px ${GOLD}0.05)`,
+      }}>
+        {/* Title bar */}
+        <div style={{
+          height: 20, background: `${GOLD}0.05)`,
+          borderBottom: `1px solid ${GOLD}0.10)`,
+          display: 'flex', alignItems: 'center', gap: 4, padding: '0 8px',
+        }}>
+          {['rgba(255,90,90,0.5)', 'rgba(255,195,50,0.5)', 'rgba(74,222,128,0.5)'].map((c, i) => (
+            <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: c }} />
+          ))}
+          <div style={{ flex: 1, marginLeft: 4, height: 6, borderRadius: 3, background: `${GOLD}0.08)`,
+            display: 'flex', alignItems: 'center', padding: '0 5px', gap: 3 }}>
+            <div style={{ width: 3, height: 3, borderRadius: '50%', background: `${GOLD}0.55)` }} />
+            <div style={{ width: '28%', height: 2, borderRadius: 1, background: `${GOLD}0.22)` }} />
+          </div>
+          {/* Role tabs */}
+          {['Admin', 'Client'].map((role, i) => (
+            <div key={role} style={{
+              padding: '1px 6px', borderRadius: 3, marginRight: i === 0 ? 1 : 0,
+              background: i === 0 ? `${GOLD}0.14)` : 'transparent',
+              border: `1px solid ${i === 0 ? `${GOLD}0.28)` : `${GOLD}0.08)`}`,
+            }}>
+              <span style={{ fontFamily: 'JetBrains Mono', fontSize: '0.31rem',
+                color: i === 0 ? `${GOLD}0.88)` : `${GOLD}0.38)`, letterSpacing: '0.08em' }}>
+                {role}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Balance row */}
+        <div style={{
+          padding: '5px 8px 4px',
+          borderBottom: `1px solid ${GOLD}0.07)`,
+        }}>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: '0.34rem',
+            color: `${GOLD}0.50)`, letterSpacing: '0.15em', marginBottom: 2 }}>
+            ACCOUNT BALANCE
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'rgba(74,222,128,0.65)',
+              flexShrink: 0, boxShadow: '0 0 5px rgba(74,222,128,0.4)' }} />
+            <div style={{ height: 7, width: '48%', borderRadius: 2, background: 'rgba(255,244,247,0.20)' }} />
+            <div style={{ height: 4, width: '16%', borderRadius: 2, background: `${GOLD}0.18)` }} />
+          </div>
+        </div>
+
+        {/* Transactions */}
+        <div style={{ padding: '5px 8px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {TXN.map((t, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              padding: '3px 5px', borderRadius: 4,
+              background: 'rgba(255,244,247,0.02)',
+              border: `1px solid ${t.ac.replace(/[\d.]+\)$/, '0.12)')}`,
+            }}>
+              <div style={{
+                width: 10, height: 10, borderRadius: 3, flexShrink: 0,
+                background: t.bg, border: `1px solid ${t.ac.replace(/[\d.]+\)$/, '0.22)')}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <span style={{ fontSize: 4, color: t.ac, lineHeight: 1 }}>{t.arrow}</span>
+              </div>
+              <div style={{ flex: 1, height: 2.5, background: 'rgba(255,244,247,0.08)', borderRadius: 1 }} />
+              <div style={{ width: 24, height: 2.5, background: t.ac, borderRadius: 1, flexShrink: 0 }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Sparkline chart */}
+        <svg width="100%" height="22" viewBox="0 0 160 18" style={{ display: 'block', padding: '0 8px' }}
+          preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="bankGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={`${GOLD}0.18)`} />
+              <stop offset="100%" stopColor={`${GOLD}0.00)`} />
+            </linearGradient>
+          </defs>
+          <polyline points="0,14 22,10 44,12 66,6 88,9 110,4 130,6 152,3 160,5"
+            fill="none" stroke={`${GOLD}0.40)`} strokeWidth="1.2"
+            strokeLinecap="round" strokeLinejoin="round" />
+          <polygon points="0,14 22,10 44,12 66,6 88,9 110,4 130,6 152,3 160,5 160,18 0,18"
+            fill="url(#bankGrad)" />
+        </svg>
+
+        {/* Tech badge row */}
+        <div style={{ display: 'flex', gap: 3, padding: '0 8px' }}>
+          {[
+            { label: 'KYC ✓', c: 'rgba(74,222,128,' },
+            { label: 'AI',    c: 'rgba(157,78,221,' },
+            { label: 'OCR',   c: GOLD },
+            { label: 'JWT',   c: GOLD },
+          ].map((b, i) => (
+            <div key={i} style={{
+              padding: '1px 5px', borderRadius: 3,
+              background: `${b.c}0.08)`, border: `1px solid ${b.c}0.24)`,
+            }}>
+              <span style={{ fontFamily: 'JetBrains Mono', fontSize: '0.32rem',
+                color: `${b.c}0.82)`, letterSpacing: '0.04em' }}>
+                {b.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Left: status badges */}
+      <div style={{ position: 'absolute', left: '4%', top: '22%', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ padding: '4px 9px', borderRadius: 7,
+          background: `${GOLD}0.08)`, border: `1px solid ${GOLD}0.26)` }}>
+          <span style={{ fontFamily: 'JetBrains Mono', fontSize: '0.40rem', color: `${GOLD}0.88)` }}>
+            KYC · OCR
+          </span>
+        </div>
+        <div style={{ padding: '4px 9px', borderRadius: 7,
+          background: 'rgba(157,78,221,0.08)', border: '1px solid rgba(157,78,221,0.22)' }}>
+          <span style={{ fontFamily: 'JetBrains Mono', fontSize: '0.40rem', color: 'rgba(157,78,221,0.85)' }}>
+            AI · Powered
+          </span>
+        </div>
+      </div>
+
+      {/* Security concentric rings */}
+      {[38, 26, 16].map((r, i) => (
+        <div key={i} style={{
+          position: 'absolute', left: '4%', bottom: '14%',
+          width: r * 2, height: r * 2, borderRadius: '50%',
+          border: `1px solid ${GOLD}${0.18 - i * 0.05})`,
+        }} />
+      ))}
+      <div style={{
+        position: 'absolute', left: 'calc(4% + 38px)', bottom: 'calc(14% + 38px)',
+        width: 7, height: 7, borderRadius: '50%',
+        background: `${GOLD}0.55)`, transform: 'translate(-50%, 50%)',
+        boxShadow: `0 0 8px ${GOLD}0.38)`,
+      }} />
+
+      {/* Fades */}
+      <div style={{ position: 'absolute', inset: 0,
+        background: 'linear-gradient(to right, rgba(9,2,5,0.97) 0%, rgba(9,2,5,0.46) 34%, rgba(9,2,5,0) 58%)' }} />
+      <div style={{ position: 'absolute', inset: 0,
+        background: 'linear-gradient(to top, rgba(9,2,5,0.80) 0%, transparent 40%)' }} />
+    </div>
+  )
+}
+
+/* ════════════════════════════════════════════════════════════
+   CASE STUDY CARD  (DigiBank)
+════════════════════════════════════════════════════════════ */
+function CaseStudyCard({ project }) {
+  const G = 'rgba(251,191,36,'
+  return (
+    <motion.div
+      className="tech-casestudy glass"
+      style={{
+        position:   'relative',
+        overflow:   'hidden',
+        borderRadius: 18,
+        border:     `1px solid ${G}0.22)`,
+        boxShadow:  `0 6px 32px rgba(5,2,7,0.65), 0 0 0 1px ${G}0.05), inset 0 1px 0 rgba(255,244,247,0.05)`,
+        minHeight:  228,
+        cursor:     'default',
+        background: `color-mix(in srgb, rgba(251,191,36,1) 2.5%, transparent)`,
+      }}
+      whileHover={{
+        boxShadow: `0 22px 56px rgba(5,2,7,0.82), 0 0 40px ${G}0.10), inset 0 1px 0 rgba(255,244,247,0.07)`,
+        borderColor: `${G}0.36)`,
+      }}
+      transition={{ duration: 0.35, ease: ease.expo }}
+    >
+      <BankingVisual />
+
+      <div className="tech-featured-content" style={{
+        position: 'relative', zIndex: 2,
+        padding:   'clamp(18px, 2.5vw, 28px)',
+        maxWidth:  '54%',
+        display:   'flex', flexDirection: 'column', gap: 11,
+        minHeight: 228, justifyContent: 'center',
+      }}>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: 9, flexShrink: 0,
+            background: `${G}0.10)`, border: `1px solid ${G}0.28)`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Landmark size={13} strokeWidth={1.5} color={`${G}0.88)`} />
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+              {/* Case Study badge */}
+              <div style={{
+                display: 'inline-flex', alignItems: 'center',
+                padding: '2px 8px', borderRadius: 9999,
+                background: `${G}0.10)`, border: `1px solid ${G}0.30)`,
+              }}>
+                <span style={{
+                  fontFamily: 'JetBrains Mono, monospace', fontSize: '0.40rem',
+                  letterSpacing: '0.18em', textTransform: 'uppercase',
+                  color: `${G}0.88)`, fontWeight: 600,
+                }}>
+                  Case Study
+                </span>
+              </div>
+              <span style={{
+                fontFamily: 'JetBrains Mono, monospace', fontSize: '0.41rem',
+                letterSpacing: '0.12em', color: 'var(--color-text-faint)',
+              }}>
+                {project.year}
+              </span>
+            </div>
+            <div style={{
+              fontFamily: 'JetBrains Mono, monospace', fontSize: '0.43rem',
+              letterSpacing: '0.12em', color: `${G}0.52)`,
+            }}>
+              Laravel · React · Full-Stack
+            </div>
+          </div>
+        </div>
+
+        {/* Title */}
+        <div>
+          <h3 className="font-editorial text-text" style={{
+            fontSize: 'clamp(1.5rem, 2.5vw, 2.2rem)',
+            fontWeight: 300, lineHeight: 1.0,
+            letterSpacing: '-0.03em', margin: '0 0 4px',
+          }}>
+            {project.title}
+          </h3>
+          <p style={{
+            fontFamily: 'Cormorant Garamond, Georgia, serif',
+            fontSize: '0.85rem', fontStyle: 'italic', fontWeight: 300,
+            color: 'var(--color-text-soft)', margin: 0, opacity: 0.8,
+          }}>
+            {project.tagline}
+          </p>
+        </div>
+
+        {/* Description */}
+        <p style={{
+          fontFamily: 'Inter, sans-serif',
+          fontSize: 'clamp(0.67rem, 0.9vw, 0.76rem)',
+          color: 'var(--color-text-muted)', lineHeight: 1.75, margin: 0,
+        }}>
+          {project.desc}
+        </p>
+
+        {/* Stack */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+          {project.stack.map((s) => (
+            <StackBadge key={s} label={s} color={`${G}0.85)`} />
+          ))}
+        </div>
+
+        {/* Actions */}
+        <div className="tech-featured-buttons" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {/* View Case Study — styled, coming soon */}
+          <button
+            disabled
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              borderRadius: 9999, padding: '7px 16px',
+              fontFamily: 'JetBrains Mono, monospace',
+              fontSize: '0.5rem', letterSpacing: '0.14em', textTransform: 'uppercase',
+              background: `${G}0.10)`, border: `1px solid ${G}0.32)`,
+              color: `${G}0.80)`,
+              boxShadow: `0 4px 16px ${G}0.12)`,
+              cursor: 'default',
+            }}
+          >
+            <BookOpen size={9} strokeWidth={1.5} />
+            View Case Study
+            <span style={{
+              fontSize: '0.36rem', letterSpacing: '0.08em',
+              padding: '1px 6px', borderRadius: 9999,
+              background: `${G}0.10)`, border: `1px solid ${G}0.20)`,
+              color: `${G}0.55)`,
+            }}>
+              Soon
+            </span>
+          </button>
+
+          {/* Code Private */}
+          <button
+            disabled
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              borderRadius: 9999, padding: '7px 16px',
+              fontFamily: 'JetBrains Mono, monospace',
+              fontSize: '0.5rem', letterSpacing: '0.14em', textTransform: 'uppercase',
+              background: 'transparent', border: '1px solid rgba(255,244,247,0.07)',
+              color: 'var(--color-text-faint)', cursor: 'not-allowed',
+            }}
+          >
+            <Lock size={9} strokeWidth={1.5} />
+            Code Private
+          </button>
+        </div>
+      </div>
+    </motion.div>
   )
 }
 
@@ -1141,14 +1490,16 @@ export default function Tech() {
   const reduced    = useReducedMotion()
   const [filter, setFilter] = useState('All')
 
-  const featured    = PROJECTS.find((p) => p.featured)
-  const highlighted = PROJECTS.find((p) => p.highlight)
+  const featured       = PROJECTS.find((p) => p.featured)
+  const highlighted    = PROJECTS.find((p) => p.highlight)
+  const caseStudyProj  = PROJECTS.find((p) => p.casestudy)
 
   const showFeatured    = filter === 'All' || filter === featured.category
+  const showCaseStudy   = filter === 'All' || (caseStudyProj?.categories ?? []).includes(filter)
   const showHighlighted = filter === 'All' || filter === highlighted.category || filter === 'Live Projects'
 
   const smallProjects = PROJECTS
-    .filter((p) => !p.featured && !p.highlight)
+    .filter((p) => !p.featured && !p.highlight && !p.casestudy)
     .filter((p) => {
       if (filter === 'All') return true
       if (filter === 'Live Projects') return p.live === true
@@ -1159,7 +1510,7 @@ export default function Tech() {
     if (reduced) return
 
     const ctx = gsap.context(() => {
-      gsap.set(['.tech-featured', '.tech-highlight', '.tech-stack-panel', '.tech-pulse'], { autoAlpha: 0 })
+      gsap.set(['.tech-featured', '.tech-casestudy', '.tech-highlight', '.tech-stack-panel', '.tech-pulse'], { autoAlpha: 0 })
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -1178,8 +1529,10 @@ export default function Tech() {
 
         .fromTo('.tech-featured',
           { autoAlpha: 0, y: 22 }, { autoAlpha: 1, y: 0, duration: 0.80 }, 0.28)
+        .fromTo('.tech-casestudy',
+          { autoAlpha: 0, y: 22 }, { autoAlpha: 1, y: 0, duration: 0.78 }, 0.38)
         .fromTo('.tech-highlight',
-          { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.75 }, 0.42)
+          { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.75 }, 0.48)
         .fromTo('.tech-stack-panel',
           { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.65 }, 0.70)
         .fromTo('.tech-pulse',
@@ -1360,6 +1713,21 @@ export default function Tech() {
                   transition={{ duration: 0.4, ease: ease.expo }}
                 >
                   <FeaturedCard project={featured} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Case Study card (DigiBank) */}
+            <AnimatePresence mode="wait">
+              {showCaseStudy && (
+                <motion.div
+                  key="casestudy"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.4, ease: ease.expo }}
+                >
+                  <CaseStudyCard project={caseStudyProj} />
                 </motion.div>
               )}
             </AnimatePresence>
