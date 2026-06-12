@@ -1,9 +1,12 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import {
   Code2, ArrowUpRight, Layers,
   Terminal, GitBranch, Globe, ExternalLink,
   Landmark, BookOpen, Lock,
+  X, Shield, Users, Zap, RefreshCw, Heart, MessageSquare,
+  Bell, Database, Server, Monitor, Key, Scan, ArrowDown,
 } from 'lucide-react'
 import { gsap } from '@lib/gsap'
 import { ease } from '@lib/animations'
@@ -594,160 +597,724 @@ function BankingVisual() {
 }
 
 /* ════════════════════════════════════════════════════════════
+   DIGIBANK MODAL — shared helpers
+════════════════════════════════════════════════════════════ */
+function SectionLabel({ num, title, G }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+      <span style={{
+        fontFamily: 'JetBrains Mono, monospace', fontSize: '0.40rem',
+        letterSpacing: '0.14em', color: `${G}0.45)`,
+      }}>
+        {num}
+      </span>
+      <div style={{ height: 1, width: 18, background: `${G}0.22)`, flexShrink: 0 }} />
+      <h3 style={{
+        fontFamily: 'Cormorant Garamond, Georgia, serif',
+        fontSize: 'clamp(0.95rem, 1.5vw, 1.15rem)',
+        fontWeight: 300, fontStyle: 'italic', letterSpacing: '-0.01em',
+        color: 'var(--color-text)', margin: 0,
+      }}>
+        {title}
+      </h3>
+    </div>
+  )
+}
+
+/* ════════════════════════════════════════════════════════════
+   DIGIBANK CASE STUDY MODAL
+════════════════════════════════════════════════════════════ */
+function DigiBankModal({ onClose }) {
+  const G = 'rgba(251,191,36,'
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
+  }, [onClose])
+
+  const FEATURES = [
+    {
+      Icon: Shield,
+      title: 'Authentication System',
+      desc: 'Dual-mode auth using Laravel Sanctum for browser session flows and JWT for stateless API access. Covers registration, login, email verification, password reset, and secure token refresh with rotation.',
+    },
+    {
+      Icon: Users,
+      title: 'Role-Based Dashboards',
+      desc: 'Two distinct dashboard interfaces for Admin and Client roles. Admins manage users, KYC approvals, analytics, and tickets. Clients access accounts, transactions, Daret membership, and donation history.',
+    },
+    {
+      Icon: Scan,
+      title: 'KYC OCR Verification',
+      desc: 'Automated identity verification pipeline using optical character recognition. Clients upload a national ID document; the system extracts, normalises, and pre-fills profile fields — flagging discrepancies for admin review.',
+    },
+    {
+      Icon: Zap,
+      title: 'AI-Powered Features',
+      desc: 'Machine learning integration for transaction anomaly detection, smart notification generation, and spending pattern analysis. Insights surface automatically without requiring user configuration.',
+    },
+    {
+      Icon: RefreshCw,
+      title: 'Daret System',
+      desc: 'Digital implementation of the traditional North African rotating savings mechanism. Members contribute on schedule and receive automated payouts by fixed rotation order, with a transparent ledger visible to all participants.',
+    },
+    {
+      Icon: Heart,
+      title: 'Donations Module',
+      desc: 'One-time or recurring donations to verified causes, sent directly from a DigiBank account. Admins manage beneficiary registration; clients track donation history and download individual receipts.',
+    },
+    {
+      Icon: MessageSquare,
+      title: 'Ticket System',
+      desc: 'In-app support and dispute resolution. Clients open categorised tickets with priority levels; admins triage, respond, and close with a full audit trail. Status changes trigger automatic notifications.',
+    },
+    {
+      Icon: Bell,
+      title: 'Smart Notifications',
+      desc: 'Real-time notification centre covering transaction confirmations, KYC status updates, Daret rotation reminders, ticket replies, and admin broadcasts. Categorised, filterable, and persistent across sessions.',
+    },
+  ]
+
+  const ARCH = [
+    {
+      Icon: Monitor,
+      label: 'React Frontend',
+      note: 'Component-driven SPA with protected routing, Axios interceptors for JWT injection, Tailwind CSS, and fully separate Admin and Client portal layouts.',
+    },
+    {
+      Icon: Server,
+      label: 'Laravel REST API',
+      note: 'Feature-based controller structure, Eloquent ORM with eager loading, form request validation, and Policy-driven model-level authorisation throughout.',
+    },
+    {
+      Icon: Key,
+      label: 'Sanctum · JWT Auth Layer',
+      note: 'Sanctum cookie sessions for the browser portal; a custom JWT middleware guards all stateless API routes. Token refresh and revocation are handled transparently.',
+    },
+    {
+      Icon: Database,
+      label: 'MySQL Database',
+      note: 'Normalised relational schema with transactional integrity, role/permission tables, and indexed financial queries for account balances and transaction history.',
+    },
+    {
+      Icon: Scan,
+      label: 'OCR Processing Pipeline',
+      note: 'Synchronous document parsing on upload, with regex normalisation and a confidence-threshold validation step before any data is written to the database.',
+    },
+  ]
+
+  const CHALLENGES = [
+    {
+      title: 'Dual auth without diverging codebases',
+      challenge: 'Supporting Sanctum cookie auth for the browser client and stateless JWT for the REST API without duplicating user, role, or permission logic across two separate systems.',
+      solution: 'A single User model with unified Policy definitions. Middleware aliases (auth:sanctum and auth:jwt) route requests to the correct guard while the user context and permissions stay identical.',
+    },
+    {
+      title: 'OCR field accuracy on real documents',
+      challenge: 'Raw OCR output from national ID photographs varies significantly — rotated text, inconsistent fonts, and low-contrast backgrounds produce unreliable field values.',
+      solution: 'A post-processing normalisation layer applies field-specific regex patterns, trims whitespace noise, and enforces a confidence threshold. Fields below the threshold prompt the user for manual entry.',
+    },
+    {
+      title: 'Daret rotation auditability',
+      challenge: 'Payout order must be perceived as fair and provably impossible to manipulate after group creation — even by an administrator.',
+      solution: 'Order is determined by a seeded shuffle at group creation and stored as an immutable JSON array. All members view the complete rotation schedule from day one; no subsequent action can alter the sequence.',
+    },
+    {
+      title: 'Role-scoped data visibility',
+      challenge: 'Shared controller routes for transactions, tickets, and notifications must return entirely different data scopes — admins see all records, clients see only their own.',
+      solution: 'Laravel Policies at the model level via viewAny and view gates. A single controller method resolves the correct query scope through the policy, keeping route definitions clean and the logic independently testable.',
+    },
+  ]
+
+  const IMPACT = [
+    '8 production-grade modules integrated into a single cohesive application',
+    '2 fully separated role dashboards with distinct data scopes and UI systems',
+    'OCR-driven KYC eliminates all manual document transcription at the onboarding stage',
+    'Daret digitalisation: a culturally-grounded rotating savings instrument, first in the portfolio',
+    'End-to-end financial stack: authentication, accounts, transactions, savings, giving, and support',
+  ]
+
+  const sd = (i) => ({
+    initial: { opacity: 0, y: 18 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.52, ease: ease.expo, delay: 0.20 + i * 0.09 },
+  })
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0,
+        background: 'rgba(5,2,7,0.90)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        zIndex: 9999,
+        overflowY: 'auto',
+        overscrollBehavior: 'contain',
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        padding: 'clamp(14px, 3vw, 44px) clamp(12px, 3vw, 24px)',
+      }}
+    >
+      {/* ── Modal panel ─────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 32, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 16, scale: 0.98 }}
+        transition={{ duration: 0.46, ease: ease.expo }}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          maxWidth: 920,
+          background: 'linear-gradient(160deg, rgba(13,6,16,0.99) 0%, rgba(9,2,5,0.99) 100%)',
+          border: `1px solid ${G}0.24)`,
+          borderRadius: 22,
+          boxShadow: `0 48px 140px rgba(5,2,7,0.96), 0 0 80px ${G}0.07), inset 0 1px 0 rgba(255,244,247,0.05)`,
+          overflow: 'hidden',
+          marginBottom: 44,
+        }}
+      >
+        {/* ── Sticky top bar ──────────────────────────────── */}
+        <div style={{
+          position: 'sticky', top: 0, zIndex: 10,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '13px 22px',
+          background: 'rgba(9,2,5,0.97)',
+          borderBottom: `1px solid ${G}0.12)`,
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+              background: `${G}0.10)`, border: `1px solid ${G}0.28)`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Landmark size={13} strokeWidth={1.5} color={`${G}0.88)`} />
+            </div>
+            <span style={{
+              fontFamily: 'JetBrains Mono, monospace', fontSize: '0.54rem',
+              letterSpacing: '0.14em', color: `${G}0.90)`,
+            }}>
+              DigiBank
+            </span>
+            <span style={{
+              fontFamily: 'JetBrains Mono, monospace', fontSize: '0.39rem',
+              letterSpacing: '0.10em', color: `${G}0.40)`,
+            }}>
+              Case Study · 2025
+            </span>
+          </div>
+          <motion.button
+            onClick={onClose}
+            whileHover={{ background: `${G}0.08)`, borderColor: `${G}0.28)` }}
+            whileTap={{ scale: 0.94 }}
+            transition={{ duration: 0.18 }}
+            style={{
+              width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+              background: 'rgba(255,244,247,0.04)',
+              border: '1px solid rgba(255,244,247,0.10)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer',
+            }}
+            aria-label="Close case study"
+          >
+            <X size={14} strokeWidth={1.8} color="var(--color-text-muted)" />
+          </motion.button>
+        </div>
+
+        {/* ── Hero banner ─────────────────────────────────── */}
+        <div style={{ position: 'relative', height: 'clamp(140px, 20vw, 210px)', overflow: 'hidden' }}>
+          <BankingVisual />
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(to right, rgba(9,2,5,0.80) 0%, transparent 55%)',
+          }} />
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, height: 90,
+            background: 'linear-gradient(to top, rgba(9,2,5,0.98) 0%, transparent 100%)',
+          }} />
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+            padding: 'clamp(16px, 3vw, 28px)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
+              {[
+                { label: 'Full-Stack',  bg: `${G}0.10)`,              border: `${G}0.28)`,              color: `${G}0.88)` },
+                { label: 'AI-Powered', bg: 'rgba(157,78,221,0.10)', border: 'rgba(157,78,221,0.26)', color: 'rgba(157,78,221,0.88)' },
+                { label: '2025',        bg: 'rgba(74,222,128,0.07)', border: 'rgba(74,222,128,0.22)', color: 'rgba(74,222,128,0.80)' },
+              ].map(({ label, bg, border, color }) => (
+                <span key={label} style={{
+                  fontFamily: 'JetBrains Mono, monospace', fontSize: '0.40rem',
+                  letterSpacing: '0.18em', textTransform: 'uppercase',
+                  padding: '2px 9px', borderRadius: 9999,
+                  background: bg, border: `1px solid ${border}`, color,
+                }}>
+                  {label}
+                </span>
+              ))}
+            </div>
+            <h2 className="font-editorial" style={{
+              fontSize: 'clamp(1.7rem, 4vw, 2.9rem)',
+              fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 0.96,
+              color: '#fff4f7', margin: 0,
+              textShadow: `0 0 60px ${G}0.18)`,
+            }}>
+              DigiBank
+              <span style={{ fontStyle: 'italic', color: `${G}0.62)`, marginLeft: '0.18em' }}>
+                Platform
+              </span>
+            </h2>
+          </div>
+        </div>
+
+        {/* ── Content body ────────────────────────────────── */}
+        <div style={{ padding: 'clamp(22px, 4vw, 42px)' }}>
+
+          {/* 01 — Overview */}
+          <motion.div {...sd(0)} style={{ marginBottom: 40 }}>
+            <SectionLabel num="01" title="Project Overview" G={G} />
+            <div className="digi-two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 22 }}>
+              <div>
+                <p style={{
+                  fontFamily: 'JetBrains Mono, monospace', fontSize: '0.43rem',
+                  letterSpacing: '0.16em', textTransform: 'uppercase',
+                  color: `${G}0.55)`, marginBottom: 9,
+                }}>
+                  What it is
+                </p>
+                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: 'var(--color-text-soft)', lineHeight: 1.82, margin: 0 }}>
+                  DigiBank is a production-grade, full-stack banking web application connecting a React SPA to a Laravel REST API. It handles end-to-end financial workflows — from first login and identity verification to daily transactions, savings groups, and charitable giving — across two entirely distinct user roles.
+                </p>
+              </div>
+              <div>
+                <p style={{
+                  fontFamily: 'JetBrains Mono, monospace', fontSize: '0.43rem',
+                  letterSpacing: '0.16em', textTransform: 'uppercase',
+                  color: `${G}0.55)`, marginBottom: 9,
+                }}>
+                  Why it was built
+                </p>
+                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: 'var(--color-text-soft)', lineHeight: 1.82, margin: 0 }}>
+                  Built to demonstrate real-world complexity beyond typical CRUD applications: security-critical authentication, document processing via OCR, multi-role access control, and culturally-specific financial instruments (Daret) — all integrated into a single cohesive system with a clean React frontend.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* 02 — Core Features */}
+          <motion.div {...sd(1)} style={{ marginBottom: 40 }}>
+            <SectionLabel num="02" title="Core Features" G={G} />
+            <div className="digi-features-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {FEATURES.map(({ Icon, title, desc }) => (
+                <div key={title} style={{
+                  display: 'flex', gap: 12, padding: '13px 15px', borderRadius: 11,
+                  background: `${G}0.03)`, border: `1px solid ${G}0.09)`,
+                }}>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: 9, flexShrink: 0,
+                    background: `${G}0.08)`, border: `1px solid ${G}0.20)`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    marginTop: 1,
+                  }}>
+                    <Icon size={13} strokeWidth={1.5} color={`${G}0.84)`} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h4 style={{
+                      fontFamily: 'Inter, sans-serif', fontSize: '0.71rem',
+                      fontWeight: 500, color: 'var(--color-text)',
+                      margin: '0 0 4px', letterSpacing: '-0.01em',
+                    }}>
+                      {title}
+                    </h4>
+                    <p style={{
+                      fontFamily: 'Inter, sans-serif', fontSize: '0.62rem',
+                      color: 'var(--color-text-muted)', lineHeight: 1.70, margin: 0,
+                    }}>
+                      {desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* 03 — Architecture */}
+          <motion.div {...sd(2)} style={{ marginBottom: 40 }}>
+            <SectionLabel num="03" title="Architecture" G={G} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {ARCH.map(({ Icon, label, note }, i) => (
+                <div key={label}>
+                  <div style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 14,
+                    padding: '12px 16px', borderRadius: 10,
+                    background: 'rgba(255,244,247,0.018)',
+                    border: `1px solid ${G}0.09)`,
+                  }}>
+                    <div style={{
+                      width: 34, height: 34, borderRadius: 9, flexShrink: 0,
+                      background: `${G}0.07)`, border: `1px solid ${G}0.17)`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Icon size={13} strokeWidth={1.5} color={`${G}0.80)`} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 3 }}>
+                        <span style={{
+                          fontFamily: 'Inter, sans-serif', fontSize: '0.72rem',
+                          fontWeight: 500, color: 'var(--color-text)',
+                        }}>
+                          {label}
+                        </span>
+                        <span style={{
+                          fontFamily: 'JetBrains Mono, monospace', fontSize: '0.39rem',
+                          letterSpacing: '0.10em', color: `${G}0.38)`,
+                        }}>
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                      </div>
+                      <p style={{
+                        fontFamily: 'Inter, sans-serif', fontSize: '0.63rem',
+                        color: 'var(--color-text-muted)', lineHeight: 1.65, margin: 0,
+                      }}>
+                        {note}
+                      </p>
+                    </div>
+                  </div>
+                  {i < ARCH.length - 1 && (
+                    <div style={{ padding: '4px 0 4px 31px' }}>
+                      <ArrowDown size={10} strokeWidth={1.5} color={`${G}0.20)`} />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* 04 — Challenges & Solutions */}
+          <motion.div {...sd(3)} style={{ marginBottom: 40 }}>
+            <SectionLabel num="04" title="Challenges & Solutions" G={G} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {CHALLENGES.map(({ title, challenge, solution }, i) => (
+                <div key={title} style={{
+                  padding: '15px 17px', borderRadius: 12,
+                  background: 'rgba(255,244,247,0.015)',
+                  border: '1px solid rgba(255,244,247,0.06)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 11 }}>
+                    <span style={{
+                      fontFamily: 'JetBrains Mono, monospace', fontSize: '0.39rem',
+                      letterSpacing: '0.12em', color: `${G}0.44)`,
+                    }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <div style={{ height: 1, width: 12, background: `${G}0.18)`, flexShrink: 0 }} />
+                    <h4 style={{
+                      fontFamily: 'Inter, sans-serif', fontSize: '0.71rem',
+                      fontWeight: 500, color: 'var(--color-text)', margin: 0,
+                    }}>
+                      {title}
+                    </h4>
+                  </div>
+                  <div className="digi-challenge-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                    <div>
+                      <span style={{
+                        fontFamily: 'JetBrains Mono, monospace', fontSize: '0.39rem',
+                        letterSpacing: '0.14em', textTransform: 'uppercase',
+                        color: 'rgba(224,68,109,0.55)', display: 'block', marginBottom: 6,
+                      }}>
+                        Challenge
+                      </span>
+                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.63rem', color: 'var(--color-text-muted)', lineHeight: 1.70, margin: 0 }}>
+                        {challenge}
+                      </p>
+                    </div>
+                    <div>
+                      <span style={{
+                        fontFamily: 'JetBrains Mono, monospace', fontSize: '0.39rem',
+                        letterSpacing: '0.14em', textTransform: 'uppercase',
+                        color: 'rgba(74,222,128,0.55)', display: 'block', marginBottom: 6,
+                      }}>
+                        Solution
+                      </span>
+                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.63rem', color: 'var(--color-text-muted)', lineHeight: 1.70, margin: 0 }}>
+                        {solution}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* 05 — Tech Stack */}
+          <motion.div {...sd(4)} style={{ marginBottom: 40 }}>
+            <SectionLabel num="05" title="Tech Stack" G={G} />
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {[
+                'React', 'Laravel', 'MySQL', 'Tailwind CSS',
+                'Laravel Sanctum', 'JWT', 'OCR', 'AI / ML',
+                'PHP', 'Axios', 'React Router', 'Eloquent ORM',
+              ].map((tech) => (
+                <span key={tech} style={{
+                  fontFamily: 'JetBrains Mono, monospace', fontSize: '0.52rem',
+                  letterSpacing: '0.08em', padding: '5px 13px', borderRadius: 8,
+                  background: `${G}0.06)`, border: `1px solid ${G}0.17)`,
+                  color: `${G}0.78)`,
+                }}>
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* 06 — Project Impact */}
+          <motion.div {...sd(5)}>
+            <SectionLabel num="06" title="Project Impact" G={G} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {IMPACT.map((item, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'flex-start', gap: 12,
+                  padding: '11px 14px', borderRadius: 9,
+                  background: `${G}0.04)`, border: `1px solid ${G}0.10)`,
+                }}>
+                  <div style={{
+                    width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                    background: `${G}0.10)`, border: `1px solid ${G}0.22)`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    marginTop: 1,
+                  }}>
+                    <span style={{
+                      fontFamily: 'JetBrains Mono, monospace', fontSize: '0.37rem',
+                      color: `${G}0.80)`, lineHeight: 1,
+                    }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                  </div>
+                  <p style={{
+                    fontFamily: 'Inter, sans-serif', fontSize: '0.70rem',
+                    color: 'var(--color-text-soft)', lineHeight: 1.62, margin: 0,
+                  }}>
+                    {item}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Footer row */}
+          <div style={{
+            marginTop: 36, paddingTop: 22,
+            borderTop: `1px solid ${G}0.10)`,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            flexWrap: 'wrap', gap: 12,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Lock size={10} strokeWidth={1.5} color="var(--color-text-faint)" />
+              <span style={{
+                fontFamily: 'Inter, sans-serif', fontSize: '0.63rem',
+                color: 'var(--color-text-muted)', fontStyle: 'italic',
+              }}>
+                Source code is private. Available for review on request.
+              </span>
+            </div>
+            <motion.button
+              onClick={onClose}
+              whileHover={{ background: `${G}0.08)`, borderColor: `${G}0.26)`, color: `${G}0.88)` }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.18 }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 7,
+                borderRadius: 9999, padding: '8px 18px',
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: '0.47rem', letterSpacing: '0.16em', textTransform: 'uppercase',
+                background: 'transparent', border: '1px solid rgba(255,244,247,0.10)',
+                color: 'var(--color-text-muted)', cursor: 'pointer',
+              }}
+            >
+              <X size={9} strokeWidth={1.8} />
+              Close
+            </motion.button>
+          </div>
+
+        </div>
+      </motion.div>
+    </motion.div>,
+    document.body,
+  )
+}
+
+/* ════════════════════════════════════════════════════════════
    CASE STUDY CARD  (DigiBank)
 ════════════════════════════════════════════════════════════ */
 function CaseStudyCard({ project }) {
+  const [open, setOpen] = useState(false)
   const G = 'rgba(251,191,36,'
   return (
-    <motion.div
-      className="tech-casestudy glass"
-      style={{
-        position:   'relative',
-        overflow:   'hidden',
-        borderRadius: 18,
-        border:     `1px solid ${G}0.22)`,
-        boxShadow:  `0 6px 32px rgba(5,2,7,0.65), 0 0 0 1px ${G}0.05), inset 0 1px 0 rgba(255,244,247,0.05)`,
-        minHeight:  228,
-        cursor:     'default',
-        background: `color-mix(in srgb, rgba(251,191,36,1) 2.5%, transparent)`,
-      }}
-      whileHover={{
-        boxShadow: `0 22px 56px rgba(5,2,7,0.82), 0 0 40px ${G}0.10), inset 0 1px 0 rgba(255,244,247,0.07)`,
-        borderColor: `${G}0.36)`,
-      }}
-      transition={{ duration: 0.35, ease: ease.expo }}
-    >
-      <BankingVisual />
+    <>
+      <motion.div
+        className="tech-casestudy glass"
+        style={{
+          position:   'relative',
+          overflow:   'hidden',
+          borderRadius: 18,
+          border:     `1px solid ${G}0.22)`,
+          boxShadow:  `0 6px 32px rgba(5,2,7,0.65), 0 0 0 1px ${G}0.05), inset 0 1px 0 rgba(255,244,247,0.05)`,
+          minHeight:  228,
+          cursor:     'default',
+          background: `color-mix(in srgb, rgba(251,191,36,1) 2.5%, transparent)`,
+        }}
+        whileHover={{
+          boxShadow: `0 22px 56px rgba(5,2,7,0.82), 0 0 40px ${G}0.10), inset 0 1px 0 rgba(255,244,247,0.07)`,
+          borderColor: `${G}0.36)`,
+        }}
+        transition={{ duration: 0.35, ease: ease.expo }}
+      >
+        <BankingVisual />
 
-      <div className="tech-featured-content" style={{
-        position: 'relative', zIndex: 2,
-        padding:   'clamp(18px, 2.5vw, 28px)',
-        maxWidth:  '54%',
-        display:   'flex', flexDirection: 'column', gap: 11,
-        minHeight: 228, justifyContent: 'center',
-      }}>
+        <div className="tech-featured-content" style={{
+          position: 'relative', zIndex: 2,
+          padding:   'clamp(18px, 2.5vw, 28px)',
+          maxWidth:  '54%',
+          display:   'flex', flexDirection: 'column', gap: 11,
+          minHeight: 228, justifyContent: 'center',
+        }}>
 
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 9, flexShrink: 0,
-            background: `${G}0.10)`, border: `1px solid ${G}0.28)`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Landmark size={13} strokeWidth={1.5} color={`${G}0.88)`} />
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-              {/* Case Study badge */}
-              <div style={{
-                display: 'inline-flex', alignItems: 'center',
-                padding: '2px 8px', borderRadius: 9999,
-                background: `${G}0.10)`, border: `1px solid ${G}0.30)`,
-              }}>
-                <span style={{
-                  fontFamily: 'JetBrains Mono, monospace', fontSize: '0.40rem',
-                  letterSpacing: '0.18em', textTransform: 'uppercase',
-                  color: `${G}0.88)`, fontWeight: 600,
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: 9, flexShrink: 0,
+              background: `${G}0.10)`, border: `1px solid ${G}0.28)`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Landmark size={13} strokeWidth={1.5} color={`${G}0.88)`} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center',
+                  padding: '2px 8px', borderRadius: 9999,
+                  background: `${G}0.10)`, border: `1px solid ${G}0.30)`,
                 }}>
-                  Case Study
+                  <span style={{
+                    fontFamily: 'JetBrains Mono, monospace', fontSize: '0.40rem',
+                    letterSpacing: '0.18em', textTransform: 'uppercase',
+                    color: `${G}0.88)`, fontWeight: 600,
+                  }}>
+                    Case Study
+                  </span>
+                </div>
+                <span style={{
+                  fontFamily: 'JetBrains Mono, monospace', fontSize: '0.41rem',
+                  letterSpacing: '0.12em', color: 'var(--color-text-faint)',
+                }}>
+                  {project.year}
                 </span>
               </div>
-              <span style={{
-                fontFamily: 'JetBrains Mono, monospace', fontSize: '0.41rem',
-                letterSpacing: '0.12em', color: 'var(--color-text-faint)',
+              <div style={{
+                fontFamily: 'JetBrains Mono, monospace', fontSize: '0.43rem',
+                letterSpacing: '0.12em', color: `${G}0.52)`,
               }}>
-                {project.year}
-              </span>
-            </div>
-            <div style={{
-              fontFamily: 'JetBrains Mono, monospace', fontSize: '0.43rem',
-              letterSpacing: '0.12em', color: `${G}0.52)`,
-            }}>
-              Laravel · React · Full-Stack
+                Laravel · React · Full-Stack
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Title */}
-        <div>
-          <h3 className="font-editorial text-text" style={{
-            fontSize: 'clamp(1.5rem, 2.5vw, 2.2rem)',
-            fontWeight: 300, lineHeight: 1.0,
-            letterSpacing: '-0.03em', margin: '0 0 4px',
-          }}>
-            {project.title}
-          </h3>
-          <p style={{
-            fontFamily: 'Cormorant Garamond, Georgia, serif',
-            fontSize: '0.85rem', fontStyle: 'italic', fontWeight: 300,
-            color: 'var(--color-text-soft)', margin: 0, opacity: 0.8,
-          }}>
-            {project.tagline}
-          </p>
-        </div>
-
-        {/* Description */}
-        <p style={{
-          fontFamily: 'Inter, sans-serif',
-          fontSize: 'clamp(0.67rem, 0.9vw, 0.76rem)',
-          color: 'var(--color-text-muted)', lineHeight: 1.75, margin: 0,
-        }}>
-          {project.desc}
-        </p>
-
-        {/* Stack */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-          {project.stack.map((s) => (
-            <StackBadge key={s} label={s} color={`${G}0.85)`} />
-          ))}
-        </div>
-
-        {/* Actions */}
-        <div className="tech-featured-buttons" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {/* View Case Study — styled, coming soon */}
-          <button
-            disabled
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              borderRadius: 9999, padding: '7px 16px',
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: '0.5rem', letterSpacing: '0.14em', textTransform: 'uppercase',
-              background: `${G}0.10)`, border: `1px solid ${G}0.32)`,
-              color: `${G}0.80)`,
-              boxShadow: `0 4px 16px ${G}0.12)`,
-              cursor: 'default',
-            }}
-          >
-            <BookOpen size={9} strokeWidth={1.5} />
-            View Case Study
-            <span style={{
-              fontSize: '0.36rem', letterSpacing: '0.08em',
-              padding: '1px 6px', borderRadius: 9999,
-              background: `${G}0.10)`, border: `1px solid ${G}0.20)`,
-              color: `${G}0.55)`,
+          {/* Title */}
+          <div>
+            <h3 className="font-editorial text-text" style={{
+              fontSize: 'clamp(1.5rem, 2.5vw, 2.2rem)',
+              fontWeight: 300, lineHeight: 1.0,
+              letterSpacing: '-0.03em', margin: '0 0 4px',
             }}>
-              Soon
-            </span>
-          </button>
+              {project.title}
+            </h3>
+            <p style={{
+              fontFamily: 'Cormorant Garamond, Georgia, serif',
+              fontSize: '0.85rem', fontStyle: 'italic', fontWeight: 300,
+              color: 'var(--color-text-soft)', margin: 0, opacity: 0.8,
+            }}>
+              {project.tagline}
+            </p>
+          </div>
 
-          {/* Code Private */}
-          <button
-            disabled
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              borderRadius: 9999, padding: '7px 16px',
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: '0.5rem', letterSpacing: '0.14em', textTransform: 'uppercase',
-              background: 'transparent', border: '1px solid rgba(255,244,247,0.07)',
-              color: 'var(--color-text-faint)', cursor: 'not-allowed',
-            }}
-          >
-            <Lock size={9} strokeWidth={1.5} />
-            Code Private
-          </button>
+          {/* Description */}
+          <p style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 'clamp(0.67rem, 0.9vw, 0.76rem)',
+            color: 'var(--color-text-muted)', lineHeight: 1.75, margin: 0,
+          }}>
+            {project.desc}
+          </p>
+
+          {/* Stack */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+            {project.stack.map((s) => (
+              <StackBadge key={s} label={s} color={`${G}0.85)`} />
+            ))}
+          </div>
+
+          {/* Actions */}
+          <div className="tech-featured-buttons" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {/* View Case Study — active button */}
+            <motion.button
+              onClick={() => setOpen(true)}
+              whileHover={{
+                background: `${G}0.16)`,
+                boxShadow: `0 8px 24px ${G}0.22)`,
+                borderColor: `${G}0.50)`,
+              }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.2, ease: ease.expo }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                borderRadius: 9999, padding: '7px 16px',
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: '0.5rem', letterSpacing: '0.14em', textTransform: 'uppercase',
+                background: `${G}0.10)`, border: `1px solid ${G}0.32)`,
+                color: `${G}0.88)`,
+                boxShadow: `0 4px 16px ${G}0.12)`,
+                cursor: 'pointer',
+              }}
+            >
+              <BookOpen size={9} strokeWidth={1.5} />
+              View Case Study
+            </motion.button>
+
+            {/* Code Private */}
+            <button
+              disabled
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                borderRadius: 9999, padding: '7px 16px',
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: '0.5rem', letterSpacing: '0.14em', textTransform: 'uppercase',
+                background: 'transparent', border: '1px solid rgba(255,244,247,0.07)',
+                color: 'var(--color-text-faint)', cursor: 'not-allowed',
+              }}
+            >
+              <Lock size={9} strokeWidth={1.5} />
+              Code Private
+            </button>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+
+      <AnimatePresence>
+        {open && <DigiBankModal onClose={() => setOpen(false)} />}
+      </AnimatePresence>
+    </>
   )
 }
 
@@ -1905,6 +2472,15 @@ export default function Tech() {
           .tech-filters button {
             padding: 6px 10px !important;
             font-size: 0.48rem !important;
+          }
+        }
+
+        /* ── DigiBank modal responsive ───────────────────────── */
+        @media (max-width: 640px) {
+          .digi-two-col,
+          .digi-features-grid,
+          .digi-challenge-grid {
+            grid-template-columns: 1fr !important;
           }
         }
       `}</style>
